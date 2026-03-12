@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HmSafar | AI Travel Companion</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+
+:root {
+  --ink: #0a0a0f;
+  --paper: #f5f0e8;
+  --gold: #c9a84c;
+  --gold-light: #e8c97a;
+  --sky: #7eb8d4;
+  --muted: #6b6560;
+  --card-bg: #ffffff;
+}
+
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--ink);
+  color: var(--paper);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 300;
+  overflow-x: hidden;
+}
+
+/* --- NOISE OVERLAY --- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 999;
+  opacity: 0.5;
+}
+
+/* --- NAV --- */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 24px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  backdrop-filter: blur(12px);
+  background: rgba(10, 10, 15, 0.7);
+  border-bottom: 1px solid rgba(201, 168, 76, 0.12);
+  animation: fadeDown 0.8s ease both;
+}
+
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  letter-spacing: 0.04em;
+  color: var(--gold);
+}
+
+.logo span {
+  color: var(--paper);
+  font-style: italic;
+}
+
+.nav-links {
+  display: flex;
+  gap: 40px;
+  list-style: none;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: rgba(245, 240, 232, 0.6);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.3s;
+}
+
+.nav-links a:hover { color: var(--gold); }
+
+.nav-cta {
+  border: 1px solid var(--gold);
+  color: var(--gold) !important;
+  padding: 8px 20px;
+  border-radius: 2px;
+  transition: background 0.3s, color 0.3s !important;
+}
+.nav-cta:hover {
+  background: var(--gold) !important;
+  color: var(--ink) !important;
+}
+
+/* --- HERO --- */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 0 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 70% 50%, rgba(126, 184, 212, 0.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 50% at 20% 80%, rgba(201, 168, 76, 0.08) 0%, transparent 60%);
+}
+
+.hero-grid-lines {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(201,168,76,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(201,168,76,0.04) 1px, transparent 1px);
+  background-size: 80px 80px;
+}
+
+.hero-left {
+  position: relative;
+  z-index: 2;
+  padding-top: 80px;
+  animation: fadeUp 1s 0.3s ease both;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 28px;
+  opacity: 0.9;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(48px, 6vw, 76px);
+  line-height: 1.08;
+  margin-bottom: 28px;
+  font-weight: 700;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-desc {
+  font-size: 16px;
+  line-height: 1.75;
+  color: rgba(245, 240, 232, 0.62);
+  max-width: 420px;
+  margin-bottom: 48px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.btn-primary {
+  background: var(--gold);
+  color: var(--ink);
+  border: none;
+  padding: 14px 32px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  text-decoration: none;
+  display: inline-block;
+  transition: background 0.3s, transform 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--gold-light);
+  transform: translateY(-2px);
+}
+
+.btn-ghost {
+  color: rgba(245,240,232,0.55);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.3s;
+}
+
+.btn-ghost:hover { color: var(--paper); }
+.btn-ghost::after { content: '→'; }
+
+.hero-right {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 80px;
+  animation: fadeUp 1s 0.6s ease both;
+}
+
+.hero-card-cluster {
+  position: relative;
+  width: 360px;
+  height: 480px;
+}
+
+.float-card {
+  position: absolute;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(201,168,76,0.18);
+  backdrop-filter: blur(16px);
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.float-card-main {
+  width: 280px;
+  top: 40px;
+  left: 40px;
+  animation: floatA 6s ease-in-out infinite;
+}
+
+.float-card-secondary {
+  width: 200px;
+  bottom: 60px;
+  right: 0px;
+  animation: floatB 7s ease-in-out infinite;
+}
+
+@keyframes floatA {
+  0%, 100% { transform: translateY(0px) rotate(-1deg); }
+  50% { transform: translateY(-12px) rotate(-1deg); }
+}
+@keyframes floatB {
+  0%, 100% { transform: translateY(0px) rotate(2deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+.card-dest {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  margin-bottom: 6px;
+  color: var(--paper);
+}
+
+.card-sub {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+
+.card-route-label {
+  font-size: 11px;
+  color: rgba(245,240,232,0.45);
+  letter-spacing: 0.06em;
+  margin-bottom: 8px;
+}
+
+.card-stops {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stop {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: rgba(245,240,232,0.7);
+}
+
+.stop-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+.stop-line {
+  width: 1px;
+  height: 14px;
+  background: rgba(201,168,76,0.3);
+  margin-left: 2.5px;
+}
+
+.stat-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(201,168,76,0.15);
+}
+
+.stat-item { text-align: left; }
+.stat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--gold);
+}
+.stat-lbl {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: rgba(245,240,232,0.4);
+  text-transform: uppercase;
+}
+
+.audio-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.play-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink);
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.audio-info {
+  flex: 1;
+}
+
+.audio-title {
+  font-size: 12px;
+  color: var(--paper);
+  margin-bottom: 4px;
+}
+
+.audio-wave {
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  height: 16px;
+}
+
+.wave-bar {
+  width: 2px;
+  background: var(--gold);
+  border-radius: 1px;
+  animation: wave 1.2s ease-in-out infinite;
+}
+
+.wave-bar:nth-child(1) { height: 4px; animation-delay: 0s; }
+.wave-bar:nth-child(2) { height: 10px; animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { height: 7px; animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { height: 13px; animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { height: 5px; animation-delay: 0.4s; }
+.wave-bar:nth-child(6) { height: 9px; animation-delay: 0.5s; }
+.wave-bar:nth-child(7) { height: 6px; animation-delay: 0.6s; }
+
+@keyframes wave {
+  0%, 100% { opacity: 0.4; transform: scaleY(0.6); }
+  50% { opacity: 1; transform: scaleY(1); }
+}
+
+/* --- DIVIDER --- */
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(201,168,76,0.25), transparent);
+  margin: 0;
+}
+
+/* --- STATS BAR --- */
+.stats-bar {
+  padding: 48px 60px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-bottom: 1px solid rgba(201,168,76,0.12);
+}
+
+.stats-bar > div {
+  text-align: center;
+  padding: 20px;
+  border-right: 1px solid rgba(201,168,76,0.1);
+  animation: fadeUp 0.8s ease both;
+}
+
+.stats-bar > div:last-child { border-right: none; }
+
+.stats-bar .num {
+  font-family: 'Playfair Display', serif;
+  font-size: 42px;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stats-bar .lbl {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(245,240,232,0.4);
+}
+
+/* --- FEATURES --- */
+.features {
+  padding: 100px 60px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 70px;
+}
+
+.section-tag {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.section-tag::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(32px, 4vw, 48px);
+  line-height: 1.15;
+  font-weight: 700;
+}
+.section-title em { font-style: italic; color: var(--gold); }
+
+.section-desc {
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(245,240,232,0.5);
+  max-width: 260px;
+  text-align: right;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 2px;
+}
+
+.feat-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(201,168,76,0.1);
+  padding: 44px 44px;
+  transition: background 0.4s, border-color 0.4s;
+  position: relative;
+  overflow: hidden;
+}
+
+.feat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.feat-card:hover {
+  background: rgba(201,168,76,0.04);
+  border-color: rgba(201,168,76,0.25);
+}
+
+.feat-card:hover::before { opacity: 1; }
+
+.feat-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 56px;
+  color: rgba(201,168,76,0.1);
+  line-height: 1;
+  margin-bottom: 24px;
+  font-weight: 700;
+  transition: color 0.4s;
+}
+
+.feat-card:hover .feat-num { color: rgba(201,168,76,0.2); }
+
+.feat-icon {
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(201,168,76,0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.feat-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.feat-card p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(245,240,232,0.52);
+  max-width: 340px;
+}
+
+/* --- HOW IT WORKS --- */
+.how-section {
+  padding: 100px 60px;
+  background: rgba(201,168,76,0.025);
+  border-top: 1px solid rgba(201,168,76,0.1);
+  border-bottom: 1px solid rgba(201,168,76,0.1);
+}
+
+.steps-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-top: 70px;
+  position: relative;
+}
+
+.steps-row::before {
+  content: '';
+  position: absolute;
+  top: 32px;
+  left: 20%;
+  right: 20%;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold) 0%, rgba(201,168,76,0.2) 50%, var(--gold) 100%);
+}
+
+.step-item {
+  padding: 0 36px;
+  position: relative;
+}
+
+.step-num {
+  width: 64px;
+  height: 64px;
+  border: 1px solid rgba(201,168,76,0.4);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: var(--gold);
+  margin-bottom: 28px;
+  background: var(--ink);
+  position: relative;
+  z-index: 1;
+}
+
+.step-item h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.step-item p {
+  font-size: 14px;
+  line-height: 1.7;
+  color: rgba(245,240,232,0.5);
+}
+
+/* --- VISION --- */
+.vision-section {
+  padding: 100px 60px;
+}
+
+.vision-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 70px;
+}
+
+.vision-card {
+  padding: 40px 36px;
+  border: 1px solid rgba(201,168,76,0.1);
+  border-radius: 4px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.4s, transform 0.4s;
+}
+
+.vision-card:hover {
+  border-color: rgba(201,168,76,0.3);
+  transform: translateY(-6px);
+}
+
+.vision-card-glow {
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 100px;
+  height: 100px;
+  background: radial-gradient(circle, rgba(201,168,76,0.12) 0%, transparent 70%);
+}
+
+.vision-icon {
+  font-size: 28px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.vision-card h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+.vision-card p {
+  font-size: 13px;
+  line-height: 1.75;
+  color: rgba(245,240,232,0.5);
+}
+
+.vision-card-tag {
+  display: inline-block;
+  margin-top: 20px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  border: 1px solid rgba(201,168,76,0.3);
+  padding: 4px 10px;
+  border-radius: 2px;
+}
+
+/* --- WAITLIST --- */
+.waitlist-section {
+  padding: 100px 60px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  border-top: 1px solid rgba(201,168,76,0.1);
+}
+
+.waitlist-left .section-title {
+  margin-bottom: 20px;
+}
+
+.waitlist-left p {
+  font-size: 14px;
+  line-height: 1.75;
+  color: rgba(245,240,232,0.5);
+  max-width: 380px;
+}
+
+.waitlist-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.waitlist-form input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(201,168,76,0.2);
+  color: var(--paper);
+  padding: 14px 20px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  border-radius: 2px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.waitlist-form input::placeholder { color: rgba(245,240,232,0.3); }
+.waitlist-form input:focus { border-color: var(--gold); }
+
+.waitlist-form button {
+  background: var(--gold);
+  color: var(--ink);
+  border: none;
+  padding: 14px 32px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: background 0.3s, transform 0.2s;
+  align-self: flex-start;
+}
+
+.waitlist-form button:hover {
+  background: var(--gold-light);
+  transform: translateY(-2px);
+}
+
+.privacy-note {
+  font-size: 11px;
+  color: rgba(245,240,232,0.3);
+  letter-spacing: 0.04em;
+}
+
+/* --- FOOTER --- */
+footer {
+  border-top: 1px solid rgba(201,168,76,0.1);
+  padding: 40px 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  color: var(--gold);
+}
+
+.footer-logo span { font-style: italic; color: rgba(245,240,232,0.6); }
+
+footer p {
+  font-size: 12px;
+  color: rgba(245,240,232,0.3);
+  letter-spacing: 0.06em;
+}
+
+.footer-links {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-links a {
+  font-size: 12px;
+  color: rgba(245,240,232,0.35);
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  transition: color 0.3s;
+}
+
+.footer-links a:hover { color: var(--gold); }
+
+/* --- SCROLL ANIMATIONS --- */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">Hm<span>Safar</span></div>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#vision">Vision</a></li>
+    <li><a href="#waitlist" class="nav-cta">Early Access</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid-lines"></div>
+
+  <div class="hero-left">
+    <div class="hero-eyebrow">AI-Powered Travel Intelligence</div>
+    <h1>Journey beyond<br>the <em>ordinary</em></h1>
+    <p class="hero-desc">HmSafar is an intelligent travel companion that crafts personalized itineraries, narrates the stories of every landmark, and guides you through cities like a local.</p>
+    <div class="hero-actions">
+      <a href="#waitlist" class="btn-primary">Join Early Access</a>
+      <a href="#features" class="btn-ghost">Explore Features</a>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-card-cluster">
+
+      <div class="float-card float-card-main">
+        <div class="card-dest">Rajasthan</div>
+        <div class="card-sub">3-Day Itinerary · AI Generated</div>
+        <div class="card-route-label">Today's Route</div>
+        <div class="card-stops">
+          <div class="stop"><div class="stop-dot"></div> Amber Fort</div>
+          <div class="stop-line"></div>
+          <div class="stop"><div class="stop-dot" style="background:rgba(201,168,76,0.4)"></div> Hawa Mahal</div>
+          <div class="stop-line"></div>
+          <div class="stop"><div class="stop-dot" style="background:rgba(201,168,76,0.2)"></div> City Palace</div>
+        </div>
+        <div class="stat-row">
+          <div class="stat-item">
+            <div class="stat-num">8.2</div>
+            <div class="stat-lbl">km walk</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">4</div>
+            <div class="stat-lbl">sites</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-num">₹600</div>
+            <div class="stat-lbl">est. cost</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="float-card float-card-secondary">
+        <div class="audio-bar">
+          <div class="play-btn">▶</div>
+          <div class="audio-info">
+            <div class="audio-title">Amber Fort Story</div>
+            <div class="audio-wave">
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="reveal">
+    <div class="num">50K+</div>
+    <div class="lbl">Cities Mapped</div>
+  </div>
+  <div class="reveal">
+    <div class="num">1.2M</div>
+    <div class="lbl">Points of Interest</div>
+  </div>
+  <div class="reveal">
+    <div class="num">200+</div>
+    <div class="lbl">Audio Languages</div>
+  </div>
+  <div class="reveal">
+    <div class="num">98%</div>
+    <div class="lbl">Accuracy Rate</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-header reveal">
+    <div>
+      <div class="section-tag">Core Features</div>
+      <h2 class="section-title">Built for the<br><em>modern traveler</em></h2>
+    </div>
+    <p class="section-desc">Every feature is designed to make your journey more meaningful and effortless.</p>
+  </div>
+
+  <div class="features-grid">
+    <div class="feat-card reveal">
+      <div class="feat-num">01</div>
+      <div class="feat-icon">🗺️</div>
+      <h3>AI Trip Planning</h3>
+      <p>Personalized itineraries built around your interests, pace, and budget — generated in seconds, refined by intelligence.</p>
+    </div>
+
+    <div class="feat-card reveal">
+      <div class="feat-num">02</div>
+      <div class="feat-icon">🧭</div>
+      <h3>Smart Navigation</h3>
+      <p>Context-aware routing across metro, bus, cab, and foot — always recommending the best path for your moment.</p>
+    </div>
+
+    <div class="feat-card reveal">
+      <div class="feat-num">03</div>
+      <div class="feat-icon">🎧</div>
+      <h3>Audio Travel Guides</h3>
+      <p>Immersive narrated stories about landmarks and historical sites, delivered exactly when you arrive.</p>
+    </div>
+
+    <div class="feat-card reveal">
+      <div class="feat-num">04</div>
+      <div class="feat-icon">🔍</div>
+      <h3>Local Discoveries</h3>
+      <p>Surface hidden cafes, secret viewpoints, and authentic local experiences that no travel guide would ever list.</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="how">
+  <div>
+    <div class="section-tag reveal">Process</div>
+    <h2 class="section-title reveal">How <em>HmSafar</em> works</h2>
+  </div>
+
+  <div class="steps-row">
+    <div class="step-item reveal">
+      <div class="step-num">I</div>
+      <h3>Tell Us Your Vision</h3>
+      <p>Share your destination, travel style, duration, and interests. The more you tell us, the smarter your journey becomes.</p>
+    </div>
+    <div class="step-item reveal">
+      <div class="step-num">II</div>
+      <h3>AI Builds Your Trip</h3>
+      <p>HmSafar instantly generates a thoughtful, optimized itinerary — complete with routes, timings, and local context.</p>
+    </div>
+    <div class="step-item reveal">
+      <div class="step-num">III</div>
+      <h3>Explore & Discover</h3>
+      <p>Follow live navigation and audio guides as you move through the city, with real-time suggestions at every turn.</p>
+    </div>
+  </div>
+</section>
+
+<!-- VISION -->
+<section class="vision-section" id="vision">
+  <div class="section-header reveal">
+    <div>
+      <div class="section-tag">What's Next</div>
+      <h2 class="section-title">The future of<br><em>exploration</em></h2>
+    </div>
+    <p class="section-desc">We are building technology that will completely transform how humanity experiences the world.</p>
+  </div>
+
+  <div class="vision-grid">
+    <div class="vision-card reveal">
+      <div class="vision-card-glow"></div>
+      <span class="vision-icon">🥽</span>
+      <h3>AR Travel Experience</h3>
+      <p>Step back in time. View historical reconstructions of monuments and ancient cities layered over the real world through augmented reality.</p>
+      <span class="vision-card-tag">2026 Roadmap</span>
+    </div>
+
+    <div class="vision-card reveal">
+      <div class="vision-card-glow"></div>
+      <span class="vision-icon">⌚</span>
+      <h3>Smart Wearables</h3>
+      <p>Receive subtle audio cues and navigation through smart glasses and earbuds — travel guidance that disappears into your experience.</p>
+      <span class="vision-card-tag">Coming Soon</span>
+    </div>
+
+    <div class="vision-card reveal">
+      <div class="vision-card-glow"></div>
+      <span class="vision-icon">🌐</span>
+      <h3>Global Travel Community</h3>
+      <p>Connect with travelers worldwide, share verified local discoveries, and build a living atlas of authentic human experience.</p>
+      <span class="vision-card-tag">In Beta</span>
+    </div>
+  </div>
+</section>
+
+<!-- WAITLIST -->
+<section class="waitlist-section" id="waitlist">
+  <div class="waitlist-left reveal">
+    <div class="section-tag">Early Access</div>
+    <h2 class="section-title">Be among<br>the <em>first</em></h2>
+    <p style="margin-top: 20px;">Join a select group of early users shaping the future of intelligent travel. Limited spots available.</p>
+  </div>
+  <div class="reveal">
+    <div class="waitlist-form">
+      <input type="text" placeholder="Your full name">
+      <input type="email" placeholder="Your email address">
+      <button>Request Access →</button>
+      <p class="privacy-note">No spam. No noise. Unsubscribe anytime.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Hm<span>Safar</span></div>
+  <p>© 2026 HmSafar Technologies. All rights reserved.</p>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<script>
+// Scroll reveal
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach((entry, i) => {
+    if (entry.isIntersecting) {
+      setTimeout(() => {
+        entry.target.classList.add('visible');
+      }, 80);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+// Stagger children in stats bar
+document.querySelectorAll('.stats-bar .reveal').forEach((el, i) => {
+  el.style.transitionDelay = `${i * 0.1}s`;
+});
+</script>
+</body>
+</html>
